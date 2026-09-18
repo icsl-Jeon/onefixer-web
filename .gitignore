@@ -1,0 +1,15 @@
+.DS_Store
+.local-backups/
+tmp_*/
+tmp_*.mp4
+
+# Generated/source caches not needed by the deployed page.
+media/compare_frames_jpg/
+media/compare_videos/
+media/frame_cache/
+media/frame_cache_jpg/
+media/frame_cache_jpg_720/
+media/internal_compare_frames_jpg/
+media/input/
+media/inference/
+media/novel_frames_jpg/

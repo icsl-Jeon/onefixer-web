@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OneFixer: High-Quality and Consistent One-Step Autoregressive 3DGS Refinement for Driving Scenes</title>
+  <meta name="description" content="OneFixer: high-quality and consistent one-step autoregressive 3DGS refinement for driving scenes.">
+  <link rel="preload" as="video" href="media/main_videos/input/segment-3385534893506316900_4252_000_4272_000_with_camera_labels.mp4">
+  <link rel="preload" as="video" href="media/main_videos/inference/segment-3385534893506316900_4252_000_4272_000_with_camera_labels.mp4">
+  <link rel="preload" as="image" href="media/motivation/motivation_poster.jpg">
+  <link rel="stylesheet" href="style.css?v=20260917-internal-mp4">
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <h1><span>OneFixer</span>: High-Quality and Consistent One-Step Autoregressive 3DGS Refinement for Driving Scenes</h1>
+      <!--
+      <p class="authors">
+        <span class="lead-author">Boseong Jeon</span><sup>1,†</sup>,
+        <span>Junhyeop Lee</span><sup>2</sup>,
+        <span>Juhan Cha</span><sup>1</sup>,
+        <span>Hayoung Kim</span><sup>1</sup>
+      </p>
+      <p class="affiliations">
+        <sup>1</sup>42dot&nbsp;&nbsp;&nbsp;<sup>2</sup>Hyundai Motor<br>
+        <sup>†</sup>Corresponding Author
+      </p>
+      -->
+    </header>
+
+    <section id="main-result" class="paper-section">
+      <section class="viewer" aria-label="Video comparison">
+        <button class="arrow left" type="button" aria-label="Previous scene">‹</button>
+        <div class="compare" id="compare">
+          <video id="inputFrame" muted playsinline preload="auto"></video>
+          <video id="outputFrame" class="output" muted playsinline preload="auto"></video>
+          <span class="badge badge-left">3DGS</span>
+          <span class="badge badge-right">OneFixer (Ours)</span>
+          <div class="divider" id="divider" aria-hidden="true">
+            <span>◀ ▶</span>
+          </div>
+          <input id="split" class="split" type="range" min="0" max="100" value="50" aria-label="Comparison split">
+          <div id="mainFrameLoader" class="media-loader active" aria-live="polite">
+            <span></span>Loading frames
+          </div>
+        </div>
+        <button class="arrow right" type="button" aria-label="Next scene">›</button>
+      </section>
+      <p class="media-note">All videos use one-step denoising with autoregressive generation over 8-frame chunks.</p>
+
+      <section class="controls" aria-label="Main playback controls">
+        <button id="play" type="button" aria-label="Play or pause">Pause</button>
+        <div class="scrubber" id="mainScrubber">
+          <span></span>
+          <input id="timeline" type="range" min="0" max="1000" value="0" aria-label="Playback position">
+        </div>
+        <span id="frame">Frame 0 / 0</span>
+        <span id="mainLoaded" class="loaded-label">Loaded 0 / 0</span>
+      </section>
+
+      <section class="scenes" aria-label="Scenes">
+        <button type="button" data-scene="0" class="active" aria-label="Scene 1"></button>
+        <button type="button" data-scene="1" aria-label="Scene 2"></button>
+        <button type="button" data-scene="2" aria-label="Scene 3"></button>
+      </section>
+
+      <figure class="hero-figure">
+        <img src="media/figures/hero.png" alt="OneFixer quality, consistency, and training efficiency summary" loading="lazy" decoding="async">
+        <figcaption><span class="brand-gradient">OneFixer</span> combines strong one-step quality, temporal stability, and efficient training. It occupies a better quality-consistency trade-off than prior 3DGS fixers while reaching lower validation error with a single-stage pipeline and substantially less task-specific compute.
+        </figcaption>
+      </figure>
+    </section>
+<section id="motivation" class="paper-section motivation">
+  <h2>Motivation</h2>
+
+  <div class="motivation-copy">
+    <p>
+    <strong>One-step causal refinement makes temporal consistency harder.</strong>
+    In autoregressive video diffusion, each refined prediction becomes part of
+    the causal context for subsequent frames. Under one-step denoising, this
+    generated context is reused without iterative correction, making
+    frame-to-frame consistency more sensitive to prediction quality.
+
+    This challenge is visible in prior autoregressive video models such as
+    <a href="https://research.nvidia.com/labs/sil/projects/omnidreams-blog/">OmniDreams</a>:
+    reducing inference from 4 denoising steps to 1 leads to greater
+    frame-to-frame inconsistency and degraded refinement quality.
+
+    </p>
+
+    <p>
+  <strong>Existing one-step stabilization pipelines can require complex training procedures.</strong>
+  Self-forcing and distribution-matching objectives can improve autoregressive
+  stability, as demonstrated by
+  <a href="https://research.nvidia.com/labs/sil/projects/artifixer/">ArtiFixer</a>,
+  but preserving perceptual quality at a single denoising step remains challenging.
+  Representative approaches additionally rely on multiple training stages,
+  separate bidirectional and causal models, or auxiliary distillation and
+  regularization objectives.
+    </p>
+  </div>
+
+  <div class="motivation-grid motivation-strip">
+    <figure>
+      <video
+        data-src="media/motivation/motivation_2x2.mp4"
+        poster="media/motivation/motivation_poster.jpg"
+        muted
+        playsinline
+        autoplay
+        preload="none">
+      </video>
+
+      <div class="cell-captions cols-2x2">
+        <span>
+          <a href="https://research.nvidia.com/labs/sil/projects/omnidreams-blog/">
+            OmniDreams @4
+          </a>
+        </span>
+
+        <span>
+          <a href="https://research.nvidia.com/labs/sil/projects/omnidreams-blog/">
+            OmniDreams @1
+          </a>
+          <br>
+          <small>Greater temporal inconsistency</small>
+        </span>
+
+        <span>
+          <a href="https://research.nvidia.com/labs/sil/projects/artifixer/">
+            ArtiFixer @1
+          </a>
+          <br>
+          <small>Improved stability, reduced detail</small>
+        </span>
+
+        <span>
+          OneFixer (Ours) @1
+          <br>
+          <small>Stable, high-fidelity refinement</small>
+        </span>
+      </div>
+
+      <div id="motivationLoader" class="media-loader active" aria-live="polite">
+        <span></span>Loading media
+      </div>
+    </figure>
+  </div>
+
+  <p class="media-note">
+    300-frame autoregressive rollout for 3DGS refinement.
+    @N denotes the number of denoising steps.
+  </p>
+
+  <section
+    class="controls motivation-controls"
+    aria-label="Motivation playback controls">
+
+    <button
+      id="motivationPlay"
+      type="button"
+      aria-label="Play or pause motivation videos">
+      Pause
+    </button>
+
+    <div>
+      <div class="scrubber" id="motivationScrubber">
+        <span></span>
+        <input
+          id="motivationTimeline"
+          type="range"
+          min="150"
+          max="300"
+          value="150"
+          aria-label="Motivation playback position">
+      </div>
+
+      <div class="phase-labels">
+        <span>Frame 150</span>
+      </div>
+    </div>
+
+    <span id="motivationFrame">Frame 150 / 300</span>
+    <span id="motivationLoaded" class="loaded-label loading">
+      Loaded 0 / 300
+    </span>
+  </section>
+
+  <!--
+  <p class="question">
+    Can we obtain stable, high-quality one-step autoregressive refinement
+    without multi-stage distillation?
+  </p>
+  -->
+</section>
+    <section id="glance" class="paper-section glance">
+      <h2><span class="brand-gradient">OneFixer</span> at a Glance</h2>
+      <div class="glance-grid">
+        <figure>
+          <img src="media/figures/training-stage.png" alt="Training stage comparison between existing approaches and OneFixer" loading="lazy" decoding="async">
+          <figcaption><strong>Efficient single-stage training.</strong> OneFixer uses a single causal model and a single training stage, avoiding multi-stage distillation and bidirectional-to-causal conversion. This simplifies adaptation to new environments and shortens the training and deployment cycle.</figcaption>
+        </figure>
+        <figure>
+          <img src="media/figures/training-diagram.png" alt="OneFixer self-rollout training diagram" loading="lazy" decoding="async">
+          <figcaption>
+          <strong>Consistency and quality through deployment-matched self-rollout.</strong>
+          For one-step autoregressive 3DGS refinement, OneFixer trains on its own
+          one-step generated rollout, matching the causal history encountered at
+          inference. The same rollout provides deployment-matched history for causal
+          flow matching and direct pixel-space perceptual supervision, jointly improving
+          temporal consistency and perceptual fidelity.
+            </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="comparison" class="comparison" aria-label="Model comparison">
+      <h2>Comparison - Waymo (198 frames)</h2>
+      <p class="media-note comparison-note">All methods are fine-tuned on the corresponding training split.</p>
+      <!--
+      <div class="release-viewer">
+        <video id="releaseVideo" controls autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+      -->
+      <div class="model-picker" id="modelPicker" aria-label="Model selectors"></div>
+      <div class="compare-grid top-grid">
+        <figure>
+          <img id="cmpInput" alt="">
+          <figcaption>3DGS</figcaption>
+        </figure>
+        <figure>
+          <img id="cmpGt" alt="">
+          <figcaption>GT</figcaption>
+        </figure>
+      </div>
+      <div class="compare-grid model-grid" id="modelGrid"></div>
+      <section class="controls comparison-controls" aria-label="Comparison playback controls">
+        <button id="cmpPlay" type="button" aria-label="Play or pause comparison">Pause</button>
+        <div class="scrubber" id="cmpScrubber">
+          <span></span>
+          <input id="cmpTimeline" type="range" min="0" max="196" value="0" aria-label="Comparison playback position">
+        </div>
+        <span id="cmpFrame">Frame 0 / 196</span>
+        <span id="cmpLoaded" class="loaded-label">Loaded 0 / 196</span>
+      </section>
+      <div id="waymoThumbs" class="thumb-grid" aria-label="Waymo comparison selectors"></div>
+    </section>
+
+    <section id="comparison-internal" class="comparison internal-comparison" aria-label="Internal model comparison">
+      <h2>Comparison - Seoul (900 frames)</h2>
+      <p class="media-note comparison-note">All methods are fine-tuned on the corresponding training split.</p>
+      <div class="model-picker" id="internalModelPicker" aria-label="Internal model selectors"></div>
+      <div class="compare-grid top-grid">
+        <figure>
+          <video id="internalInput" muted playsinline preload="auto"></video>
+          <figcaption>3DGS</figcaption>
+        </figure>
+        <figure>
+          <video id="internalGt" muted playsinline preload="auto"></video>
+          <figcaption>GT</figcaption>
+        </figure>
+      </div>
+      <div class="compare-grid model-grid" id="internalModelGrid"></div>
+      <section class="controls comparison-controls" aria-label="Internal comparison playback controls">
+        <button id="internalPlay" type="button" aria-label="Play or pause internal comparison">Pause</button>
+        <div class="scrubber" id="internalScrubber">
+          <span></span>
+          <input id="internalTimeline" type="range" min="0" max="899" value="0" aria-label="Internal comparison playback position">
+        </div>
+        <span id="internalFrame">Frame 0 / 899</span>
+        <span id="internalLoaded" class="loaded-label">Loaded 0 / 899</span>
+      </section>
+      <div id="internalThumbs" class="thumb-grid" aria-label="Internal comparison selectors"></div>
+    </section>
+
+    <section id="comparison-novel" class="comparison novel-comparison" aria-label="Novel view comparison">
+      <h2>Comparison - Novel View (300 frames)</h2>
+      <p class="media-note comparison-note">All methods are fine-tuned on the corresponding training split.</p>
+      <div id="novelSelectors" class="novel-selectors">
+        <div class="model-group">
+          <span>Displacement</span>
+          <button type="button" class="active" data-shift="1">+1m from Logging view</button>
+          <button type="button" data-shift="2">+2m from Logging view</button>
+        </div>
+        <div class="model-group">
+          <span>Yaw</span>
+          <button type="button" data-yaw="0">Left 10 deg</button>
+          <button type="button" class="active" data-yaw="1">0 deg</button>
+          <button type="button" data-yaw="2">Right 10 deg</button>
+        </div>
+      </div>
+      <figure id="novelFigure" class="novel-composite">
+        <img id="novelComposite" src="media/novel_composite_jpg/001_streetsquare_cam_front_shift_1_yaw_0/001.jpg" alt="">
+        <div class="cell-captions cols-3x2">
+          <span>3DGS</span>
+          <span>DiFix3D</span>
+          <span>3DGS Enhancer</span>
+          <span>Logging view</span>
+          <span>ArtiFixer</span>
+          <span>OneFixer (Ours)</span>
+        </div>
+      </figure>
+      <section class="controls comparison-controls" aria-label="Novel view playback controls">
+        <button id="novelPlay" type="button" aria-label="Play or pause novel view comparison">Pause</button>
+        <div class="scrubber">
+          <span style="right:0"></span>
+          <input id="novelTimeline" type="range" min="0" max="299" value="0" aria-label="Novel view playback position">
+        </div>
+        <span id="novelFrame">Frame 0 / 299</span>
+      </section>
+      <div id="novelThumbs" class="thumb-grid" aria-label="Novel view selectors"></div>
+    </section>
+
+    <section id="additional-results" class="comparison additional-results" aria-label="Additional results">
+      <h2>Additional Results</h2>
+      <h3>Closed Loop Simulation</h3>
+      <figure class="closed-loop-viewer">
+        <video id="closedLoopVideo" src="media/closed_loop/stop_before_truck.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <div id="closedLoopLoader" class="media-loader active" aria-live="polite"><span></span>Loading media</div>
+      </figure>
+      <section class="controls media-controls" aria-label="Closed loop playback controls">
+        <button id="closedLoopPlay" type="button" aria-label="Play or pause closed loop video">Pause</button>
+        <div class="scrubber">
+          <span style="right:0"></span>
+          <input id="closedLoopTimeline" type="range" min="0" max="1000" value="0" aria-label="Closed loop playback position">
+        </div>
+        <span id="closedLoopTime">0:00 / 0:00</span>
+      </section>
+      <p id="closedLoopCaption" class="media-note">Correctly stops before the truck. The black dashed line indicates the logged trajectory; outside this path, no 3DGS reconstruction is available.</p>
+      <div id="closedLoopThumbs" class="thumb-grid" aria-label="Closed loop simulation selectors"></div>
+
+      <h3>Stylization</h3>
+      <div id="stylizationGrid" class="stylization-grid" aria-label="Stylization video grid">
+        <figure class="style-cell style-top-a">
+          <video data-style-video="3dgs" src="media/stylization_cells/3dgs/segment-2259324582958830057_3767_030_3787_030_with_camera_labels.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption>3DGS</figcaption>
+        </figure>
+        <figure class="style-cell style-top-b">
+          <video data-style-video="original" src="media/stylization_cells/original/segment-2259324582958830057_3767_030_3787_030_with_camera_labels.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption>Original</figcaption>
+        </figure>
+        <figure class="style-cell style-bottom-a">
+          <video data-style-video="night" src="media/stylization_cells/night/segment-2259324582958830057_3767_030_3787_030_with_camera_labels.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption>Night</figcaption>
+        </figure>
+        <figure class="style-cell style-bottom-b">
+          <video data-style-video="snowy" src="media/stylization_cells/snowy/segment-2259324582958830057_3767_030_3787_030_with_camera_labels.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption>Snowy</figcaption>
+        </figure>
+        <figure class="style-cell style-bottom-c">
+          <video data-style-video="foggy" src="media/stylization_cells/foggy/segment-2259324582958830057_3767_030_3787_030_with_camera_labels.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption>Foggy</figcaption>
+        </figure>
+      </div>
+      <section class="controls media-controls" aria-label="Stylization playback controls">
+        <button id="stylizationPlay" type="button" aria-label="Play or pause stylization video">Pause</button>
+        <div class="scrubber">
+          <span style="right:0"></span>
+          <input id="stylizationTimeline" type="range" min="0" max="1000" value="0" aria-label="Stylization playback position">
+        </div>
+        <span id="stylizationTime">0:00 / 0:00</span>
+      </section>
+      <div id="stylizationThumbs" class="thumb-grid" aria-label="Stylization selectors"></div>
+
+      <h3>Multi-Camera Generation</h3>
+      <figure class="multicam-viewer">
+        <video id="multicamVideo" src="media/multicam/scene_1.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <div id="multicamLoader" class="media-loader active" aria-live="polite"><span></span>Loading media</div>
+      </figure>
+      <section class="controls media-controls" aria-label="Multi-camera playback controls">
+        <button id="multicamPlay" type="button" aria-label="Play or pause multi-camera video">Pause</button>
+        <div class="scrubber">
+          <span style="right:0"></span>
+          <input id="multicamTimeline" type="range" min="0" max="1000" value="0" aria-label="Multi-camera playback position">
+        </div>
+        <span id="multicamTime">0:00 / 0:00</span>
+      </section>
+      <div id="multicamThumbs" class="thumb-grid" aria-label="Multi-camera selectors"></div>
+
+      <h3>High Resolution</h3>
+      <figure class="highres-viewer">
+        <img id="highresImage" src="media/high_resolution/scene_1.png" alt="High-resolution comparison result" loading="lazy" decoding="async">
+        <div id="highresLoader" class="media-loader active" aria-live="polite"><span></span>Loading image</div>
+      </figure>
+      <div id="highresThumbs" class="thumb-grid" aria-label="High-resolution selectors"></div>
+    </section>
+
+  </main>
+  <script src="script.js?v=20260917-internal-mp4"></script>
+</body>
+</html>
