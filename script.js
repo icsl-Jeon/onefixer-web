@@ -622,7 +622,11 @@ function updateInternalVideoState() {
   internalPlayButton.textContent = leader.paused ? "Play" : "Pause";
   videos.slice(1).forEach(video => {
     if (Math.abs(video.currentTime - leader.currentTime) > 0.08) video.currentTime = leader.currentTime;
-    if (!leader.paused && video.paused) video.play().catch(() => {});
+    if (leader.paused || leader.ended) {
+      if (!video.paused) video.pause();
+    } else if (video.paused) {
+      video.play().catch(() => {});
+    }
   });
 }
 
@@ -644,7 +648,11 @@ function updateNondrivingVideoState() {
   nondrivingPlayButton.textContent = leader.paused ? "Play" : "Pause";
   videos.slice(1).forEach(video => {
     if (Math.abs(video.currentTime - leader.currentTime) > 0.08) video.currentTime = leader.currentTime;
-    if (!leader.paused && video.paused) video.play().catch(() => {});
+    if (leader.paused || leader.ended) {
+      if (!video.paused) video.pause();
+    } else if (video.paused) {
+      video.play().catch(() => {});
+    }
   });
 }
 

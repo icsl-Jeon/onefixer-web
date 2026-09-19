@@ -165,11 +165,11 @@ h1 span {
 }
 
 .novel-comparison {
-  --section-bg: #fff;
+  --section-bg: var(--page);
 }
 
 .additional-results {
-  --section-bg: var(--page);
+  --section-bg: #fff;
 }
 
 .paper-section h2,
@@ -192,6 +192,10 @@ h1 span {
 
 #additional-results h3:not(:first-of-type) {
   margin-top: 54px;
+}
+
+.additional-subsection {
+  margin-bottom: 10px;
 }
 
 .paper-section h2::after,
