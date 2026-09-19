@@ -194,6 +194,10 @@ h1 span {
   margin-top: 54px;
 }
 
+#comparison-nondriving {
+  margin-top: 72px;
+}
+
 .paper-section h2::after,
 .comparison h2::after {
   content: "";
