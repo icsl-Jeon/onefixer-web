@@ -572,6 +572,7 @@ function setInternalVideoSources() {
   entries.forEach(([kind, video]) => {
     if (!video) return;
     bindInternalVideo(video);
+    video.loop = true;
     const src = internalVideoPath(kind);
     if (!video.src.endsWith(src)) {
       video.src = src;
@@ -592,6 +593,7 @@ function setNondrivingVideoSources() {
   entries.forEach(([kind, video]) => {
     if (!video) return;
     bindNondrivingVideo(video);
+    video.loop = true;
     const src = nondrivingVideoPath(kind);
     if (!video.src.endsWith(src)) {
       video.src = src;
@@ -759,14 +761,14 @@ function renderInternalModelPicker() {
 function renderInternalModelTiles() {
   internalModelGrid.innerHTML = internalSelectedModels.map(key => {
     const model = models.find(item => item.key === key);
-    return `<figure><video muted playsinline preload="auto"></video><figcaption>${model.label}</figcaption></figure>`;
+    return `<figure><video muted loop playsinline preload="auto"></video><figcaption>${model.label}</figcaption></figure>`;
   }).join("");
   internalModelFrameEls = [...internalModelGrid.querySelectorAll("video")];
 }
 
 function renderNondrivingModelTiles() {
   nondrivingModelGrid.innerHTML = nondrivingModels.map(model => (
-    `<figure><video muted playsinline preload="auto"></video><figcaption>${model.label}</figcaption></figure>`
+    `<figure><video muted loop playsinline preload="auto"></video><figcaption>${model.label}</figcaption></figure>`
   )).join("");
   nondrivingModelFrameEls = [...nondrivingModelGrid.querySelectorAll("video")];
 }

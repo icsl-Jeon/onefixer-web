@@ -32,8 +32,8 @@
       <section class="viewer" aria-label="Video comparison">
         <button class="arrow left" type="button" aria-label="Previous scene">‹</button>
         <div class="compare" id="compare">
-          <video id="inputFrame" muted playsinline preload="auto"></video>
-          <video id="outputFrame" class="output" muted playsinline preload="auto"></video>
+          <video id="inputFrame" muted loop playsinline preload="auto"></video>
+          <video id="outputFrame" class="output" muted loop playsinline preload="auto"></video>
           <span class="badge badge-left">3DGS</span>
           <span class="badge badge-right">OneFixer (Ours)</span>
           <div class="divider" id="divider" aria-hidden="true">
@@ -106,6 +106,7 @@
         data-src="media/motivation/motivation_2x2.mp4"
         poster="media/motivation/motivation_poster.jpg"
         muted
+        loop
         playsinline
         autoplay
         preload="none">
@@ -252,11 +253,11 @@
       <div class="model-picker" id="internalModelPicker" aria-label="Internal model selectors"></div>
       <div class="compare-grid top-grid">
         <figure>
-          <video id="internalInput" muted playsinline preload="auto"></video>
+          <video id="internalInput" muted loop playsinline preload="auto"></video>
           <figcaption>3DGS</figcaption>
         </figure>
         <figure>
-          <video id="internalGt" muted playsinline preload="auto"></video>
+          <video id="internalGt" muted loop playsinline preload="auto"></video>
           <figcaption>GT</figcaption>
         </figure>
       </div>
@@ -318,11 +319,11 @@
         <p class="media-note comparison-note">All methods are fine-tuned on the corresponding training split. OneFixer is initialized from OmniDreams, a driving-scene generation video model.</p>
         <div class="compare-grid top-grid">
           <figure>
-            <video id="nondrivingInput" muted playsinline preload="auto"></video>
+            <video id="nondrivingInput" muted loop playsinline preload="auto"></video>
             <figcaption>3DGS</figcaption>
           </figure>
           <figure>
-            <video id="nondrivingGt" muted playsinline preload="auto"></video>
+            <video id="nondrivingGt" muted loop playsinline preload="auto"></video>
             <figcaption>GT</figcaption>
           </figure>
         </div>
