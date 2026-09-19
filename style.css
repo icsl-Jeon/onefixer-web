@@ -874,7 +874,8 @@ h1 span {
   z-index: 2;
 }
 
-.novel-composite img {
+.novel-composite img,
+.novel-composite video {
   display: block;
   width: 100%;
   height: 100%;

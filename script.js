@@ -111,6 +111,7 @@ let internalVideoTickStarted = false;
 let nondrivingStarted = false;
 let nondrivingVideoTickStarted = false;
 let novelStarted = false;
+let novelVideoTickStarted = false;
 let lastTick = performance.now();
 let cmpLastTick = performance.now();
 let internalLastTick = performance.now();
@@ -254,6 +255,13 @@ function novelPath(index) {
     return `media/novel_side_composite_jpg/${novelSideScenes[novelGalleryScene - 1]}_${novelSideShift}/${n}.jpg`;
   }
   return `media/novel_composite_jpg/${novelScenes[`${novelShift}_${novelYaw}`]}/${n}.jpg`;
+}
+
+function novelVideoPath() {
+  if (novelGalleryScene > 0) {
+    return `media/novel_videos/${novelSideScenes[novelGalleryScene - 1]}_${novelSideShift}.mp4`;
+  }
+  return `media/novel_videos/${novelScenes[`${novelShift}_${novelYaw}`]}.mp4`;
 }
 
 function preloadAround(index) {
@@ -970,6 +978,25 @@ function novelTick(now) {
   requestAnimationFrame(novelTick);
 }
 
+function updateNovelVideoState() {
+  const total = 300;
+  const current = novelComposite.currentTime || 0;
+  novelFrame = Math.min(total - 1, Math.round(current * novelFps));
+  novelTimeline.value = novelFrame;
+  const playedPct = total > 1 ? (novelFrame / (total - 1)) * 100 : 0;
+  const loadedPct = bufferedPercent(novelComposite);
+  const scrubber = novelTimeline.closest(".scrubber");
+  scrubber?.style.setProperty("--played", `${playedPct}%`);
+  scrubber?.style.setProperty("--loaded", `${Math.max(loadedPct, playedPct)}%`);
+  novelFrameLabel.textContent = `Frame ${novelFrame} / 299`;
+  novelPlayButton.textContent = novelComposite.paused ? "Play" : "Pause";
+}
+
+function novelVideoTick() {
+  updateNovelVideoState();
+  requestAnimationFrame(novelVideoTick);
+}
+
 
 function syncMotivationVideos() {
   if (motivationVideos.length) {
@@ -1046,20 +1073,21 @@ async function preloadMotivationVideo() {
 }
 
 function renderNovel() {
-  const token = ++novelToken;
-  novelTimeline.value = novelFrame;
-  novelFrameLabel.textContent = `Frame ${novelFrame} / 299`;
   novelFigure.classList.toggle("novel-side-composite", novelGalleryScene > 0);
-  load(novelPath(novelFrame)).then(image => {
-    if (token !== novelToken) return;
-    novelComposite.src = image.src;
-  });
-  preloadNovelAround(novelFrame);
+  const src = novelVideoPath();
+  if (!novelComposite.src.endsWith(src)) {
+    novelComposite.src = src;
+    novelComposite.load();
+  }
+  novelComposite.loop = true;
+  if (novelPlaying) novelComposite.play().catch(() => {});
+  updateNovelVideoState();
 }
 
 function setNovelFrame(next) {
   novelFrame = Math.max(0, Math.min(299, next));
-  renderNovel();
+  novelComposite.currentTime = novelFrame / novelFps;
+  updateNovelVideoState();
 }
 
 function setNovelScene() {
@@ -1067,6 +1095,8 @@ function setNovelScene() {
   renderNovelSelectors();
   renderNovelThumbs();
   renderNovel();
+  novelComposite.currentTime = 0;
+  updateNovelVideoState();
 }
 
 function startComparison() {
@@ -1108,7 +1138,10 @@ function startNovelComparison() {
   novelStarted = true;
   setNovelScene();
   novelLastTick = performance.now();
-  requestAnimationFrame(novelTick);
+  if (!novelVideoTickStarted) {
+    novelVideoTickStarted = true;
+    requestAnimationFrame(novelVideoTick);
+  }
 }
 
 function setClosedLoopScene(next) {
@@ -1397,8 +1430,14 @@ highresThumbs.addEventListener("click", event => {
 });
 novelPlayButton.addEventListener("click", () => {
   startNovelComparison();
-  novelPlaying = !novelPlaying;
-  novelPlayButton.textContent = novelPlaying ? "Pause" : "Play";
+  if (novelComposite.paused) {
+    novelPlaying = true;
+    novelComposite.play().catch(() => {});
+  } else {
+    novelPlaying = false;
+    novelComposite.pause();
+  }
+  updateNovelVideoState();
 });
 document.addEventListener("keydown", event => {
   if (event.key === "ArrowLeft") setScene(scene - 1);
