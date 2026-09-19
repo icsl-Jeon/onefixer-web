@@ -160,12 +160,16 @@ h1 span {
   --section-bg: #fff;
 }
 
-.novel-comparison {
+.nondriving-comparison {
   --section-bg: var(--page);
 }
 
-.additional-results {
+.novel-comparison {
   --section-bg: #fff;
+}
+
+.additional-results {
+  --section-bg: var(--page);
 }
 
 .paper-section h2,
@@ -1006,6 +1010,7 @@ figcaption {
   #frame,
   #cmpFrame,
   #internalFrame,
+  #nondrivingFrame,
   #novelFrame,
   #motivationFrame,
   .loaded-label,

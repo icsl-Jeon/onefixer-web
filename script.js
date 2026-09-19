@@ -44,6 +44,15 @@ const internalFrameLabel = document.querySelector("#internalFrame");
 const internalScrubber = document.querySelector("#internalScrubber");
 const internalLoadedLabel = document.querySelector("#internalLoaded");
 const internalThumbs = document.querySelector("#internalThumbs");
+const nondrivingModelGrid = document.querySelector("#nondrivingModelGrid");
+const nondrivingInput = document.querySelector("#nondrivingInput");
+const nondrivingGt = document.querySelector("#nondrivingGt");
+const nondrivingPlayButton = document.querySelector("#nondrivingPlay");
+const nondrivingTimeline = document.querySelector("#nondrivingTimeline");
+const nondrivingFrameLabel = document.querySelector("#nondrivingFrame");
+const nondrivingScrubber = document.querySelector("#nondrivingScrubber");
+const nondrivingLoadedLabel = document.querySelector("#nondrivingLoaded");
+const nondrivingThumbs = document.querySelector("#nondrivingThumbs");
 const novelFigure = document.querySelector("#novelFigure");
 const novelSelectors = document.querySelector("#novelSelectors");
 const novelComposite = document.querySelector("#novelComposite");
@@ -83,6 +92,7 @@ let scene = 0;
 let frame = 0;
 let cmpFrame = 0;
 let internalFrame = 0;
+let nondrivingFrame = 0;
 let novelFrame = 0;
 let motivationPlaying = true;
 let motivationFrames = 300;
@@ -94,9 +104,12 @@ let mainAutoplayPending = true;
 let mainStartupToken = 0;
 let cmpPlaying = true;
 let internalPlaying = true;
+let nondrivingPlaying = true;
 let comparisonStarted = false;
 let internalStarted = false;
 let internalVideoTickStarted = false;
+let nondrivingStarted = false;
+let nondrivingVideoTickStarted = false;
 let novelStarted = false;
 let lastTick = performance.now();
 let cmpLastTick = performance.now();
@@ -115,8 +128,10 @@ let selectedModels = ["difix3d", "artifixer", "onefixer"];
 let internalSelectedModels = ["difix3d", "artifixer", "onefixer"];
 let modelFrameEls = [];
 let internalModelFrameEls = [];
+let nondrivingModelFrameEls = [];
 let comparisonScene = 0;
 let internalScene = 0;
+let nondrivingScene = 0;
 const waymoFinalists = [
   "segment-207754730878135627_1140_000_1160_000_with_camera_labels",
   "segment-268278198029493143_1400_000_1420_000_with_camera_labels",
@@ -148,6 +163,17 @@ const internalFinalists = [
   "left_1__ckpt_30000__ftdot_1d2d99b8-50f1-5a87-9416-315283d87fd7_20260427021822_017_CAM_FRONT",
 ];
 const internalScenes = internalFinalists.map(id => ({ id, frames: 900, fps: 20 }));
+const nondrivingFinalists = [
+  "2f3e1c0f688c84cec67f9a1ea219c54c14ffabf31a046e620dacc690cac2f1bd",
+  "8b9fb9d9f10e8c64d5034be69809465753b8ba88ef12da82afd47d38ee789934",
+  "032dee9fb0a8bc1b90871dc5fe950080d0bcd3caf166447f44e60ca50ac04ec7",
+];
+const nondrivingScenes = nondrivingFinalists.map(id => ({ id, frames: 300, fps: 30 }));
+const nondrivingModels = [
+  { key: "difix3d", label: "DiFix3D" },
+  { key: "artifixer", label: "ArtiFixer (1.3B)" },
+  { key: "onefixer", label: "OneFixer (Ours)" },
+];
 const novelScenes = {
   "1_0": "000_streetsquare_cam_front_shift_1_yaw_m10",
   "1_1": "001_streetsquare_cam_front_shift_1_yaw_0",
@@ -218,6 +244,10 @@ function internalVideoPath(kind) {
   return `media/internal_videos/${kind}/${internalScenes[internalScene].id}.mp4`;
 }
 
+function nondrivingVideoPath(kind) {
+  return `media/nondriving_videos/${kind}/${nondrivingScenes[nondrivingScene].id}.mp4`;
+}
+
 function novelPath(index) {
   const n = String(index + 1).padStart(3, "0");
   if (novelGalleryScene > 0) {
@@ -255,7 +285,8 @@ function initWhenNear(selector, init) {
 function prewarmGalleries() {
   setTimeout(startComparison, 1200);
   setTimeout(startInternalComparison, 2600);
-  setTimeout(startNovelComparison, 4000);
+  setTimeout(startNondrivingComparison, 4000);
+  setTimeout(startNovelComparison, 5200);
 }
 
 function preloadNovelAround(index) {
@@ -504,8 +535,16 @@ function renderInternalComparison() {
   preloadInternalAround(internalFrame);
 }
 
+function renderNondrivingComparison() {
+  setNondrivingVideoSources();
+}
+
 function internalVideos() {
   return [internalInput, internalGt, ...internalModelFrameEls];
+}
+
+function nondrivingVideos() {
+  return [nondrivingInput, nondrivingGt, ...nondrivingModelFrameEls];
 }
 
 function bindInternalVideo(video) {
@@ -513,6 +552,14 @@ function bindInternalVideo(video) {
   video.dataset.internalBound = "true";
   ["loadedmetadata", "progress", "timeupdate", "waiting", "playing", "pause"].forEach(eventName => {
     video.addEventListener(eventName, updateInternalVideoState);
+  });
+}
+
+function bindNondrivingVideo(video) {
+  if (video.dataset.nondrivingBound) return;
+  video.dataset.nondrivingBound = "true";
+  ["loadedmetadata", "progress", "timeupdate", "waiting", "playing", "pause"].forEach(eventName => {
+    video.addEventListener(eventName, updateNondrivingVideoState);
   });
 }
 
@@ -534,6 +581,26 @@ function setInternalVideoSources() {
   });
   if (internalPlaying) internalVideos().forEach(video => video.play().catch(() => {}));
   updateInternalVideoState();
+}
+
+function setNondrivingVideoSources() {
+  const entries = [
+    ["input", nondrivingInput],
+    ["gt", nondrivingGt],
+    ...nondrivingModels.map((model, i) => [model.key, nondrivingModelFrameEls[i]]),
+  ];
+  entries.forEach(([kind, video]) => {
+    if (!video) return;
+    bindNondrivingVideo(video);
+    const src = nondrivingVideoPath(kind);
+    if (!video.src.endsWith(src)) {
+      video.src = src;
+      video.load();
+    }
+    video.playbackRate = 1;
+  });
+  if (nondrivingPlaying) nondrivingVideos().forEach(video => video.play().catch(() => {}));
+  updateNondrivingVideoState();
 }
 
 function updateInternalVideoState() {
@@ -559,9 +626,36 @@ function updateInternalVideoState() {
   });
 }
 
+function updateNondrivingVideoState() {
+  const videos = nondrivingVideos().filter(Boolean);
+  if (!videos.length) return;
+  const leader = nondrivingInput;
+  const total = nondrivingScenes[nondrivingScene].frames;
+  nondrivingFrame = Math.min(total - 1, Math.round((leader.currentTime || 0) * nondrivingScenes[nondrivingScene].fps));
+  nondrivingTimeline.value = nondrivingFrame;
+  const playedPct = total > 1 ? (nondrivingFrame / (total - 1)) * 100 : 0;
+  const loadedPct = Math.min(...videos.map(bufferedPercent));
+  nondrivingScrubber.style.setProperty("--played", `${playedPct}%`);
+  nondrivingScrubber.style.setProperty("--loaded", `${Math.max(loadedPct, playedPct)}%`);
+  nondrivingFrameLabel.textContent = `Frame ${nondrivingFrame} / ${total - 1}`;
+  nondrivingLoadedLabel.textContent = `Loaded ${Math.round((loadedPct / 100) * total)} / ${total}`;
+  nondrivingScrubber.classList.toggle("loading", loadedPct < 100);
+  nondrivingLoadedLabel.classList.toggle("loading", loadedPct < 100);
+  nondrivingPlayButton.textContent = leader.paused ? "Play" : "Pause";
+  videos.slice(1).forEach(video => {
+    if (Math.abs(video.currentTime - leader.currentTime) > 0.08) video.currentTime = leader.currentTime;
+    if (!leader.paused && video.paused) video.play().catch(() => {});
+  });
+}
+
 function internalVideoTick() {
   updateInternalVideoState();
   requestAnimationFrame(internalVideoTick);
+}
+
+function nondrivingVideoTick() {
+  updateNondrivingVideoState();
+  requestAnimationFrame(nondrivingVideoTick);
 }
 
 function setFrame(next) {
@@ -592,6 +686,16 @@ function setInternalFrame(next) {
     return;
   }
   renderInternalComparison();
+}
+
+function setNondrivingFrame(next) {
+  nondrivingFrame = Math.max(0, Math.min(nondrivingScenes[nondrivingScene].frames - 1, next));
+  const time = nondrivingFrame / nondrivingScenes[nondrivingScene].fps;
+  nondrivingVideos().forEach(video => {
+    if (Number.isFinite(video.duration)) video.currentTime = Math.min(time, video.duration || time);
+    else video.currentTime = time;
+  });
+  updateNondrivingVideoState();
 }
 
 function setScene(next) {
@@ -652,6 +756,13 @@ function renderInternalModelTiles() {
   internalModelFrameEls = [...internalModelGrid.querySelectorAll("video")];
 }
 
+function renderNondrivingModelTiles() {
+  nondrivingModelGrid.innerHTML = nondrivingModels.map(model => (
+    `<figure><video muted playsinline preload="auto"></video><figcaption>${model.label}</figcaption></figure>`
+  )).join("");
+  nondrivingModelFrameEls = [...nondrivingModelGrid.querySelectorAll("video")];
+}
+
 function renderWaymoThumbs() {
   waymoThumbs.innerHTML = waymoFinalists.map((id, i) => {
     const active = i === comparisonScene ? " active" : "";
@@ -663,6 +774,13 @@ function renderInternalThumbs() {
   internalThumbs.innerHTML = internalFinalists.map((id, i) => {
     const active = i === internalScene ? " active" : "";
     return `<button type="button" class="${active.trim()}" data-internal-scene="${i}" aria-label="Internal comparison ${i + 1}"><img src="media/internal_thumbs/${id}.jpg" alt="" loading="lazy" decoding="async"></button>`;
+  }).join("");
+}
+
+function renderNondrivingThumbs() {
+  nondrivingThumbs.innerHTML = nondrivingFinalists.map((id, i) => {
+    const active = i === nondrivingScene ? " active" : "";
+    return `<button type="button" class="${active.trim()}" data-nondriving-scene="${i}" aria-label="Non-driving comparison ${i + 1}"><img src="media/nondriving_thumbs/${id}.jpg" alt="" loading="lazy" decoding="async"></button>`;
   }).join("");
 }
 
@@ -745,6 +863,14 @@ function setInternalScene(next) {
   renderInternalThumbs();
   updateLoadedBars();
   renderInternalComparison();
+}
+
+function setNondrivingScene(next) {
+  nondrivingScene = next;
+  nondrivingFrame = 0;
+  nondrivingTimeline.max = nondrivingScenes[nondrivingScene].frames - 1;
+  renderNondrivingThumbs();
+  renderNondrivingComparison();
 }
 
 function toggleModel(key) {
@@ -956,6 +1082,17 @@ function startInternalComparison() {
   }
 }
 
+function startNondrivingComparison() {
+  if (nondrivingStarted) return;
+  nondrivingStarted = true;
+  renderNondrivingModelTiles();
+  setNondrivingScene(0);
+  if (!nondrivingVideoTickStarted) {
+    nondrivingVideoTickStarted = true;
+    requestAnimationFrame(nondrivingVideoTick);
+  }
+}
+
 function startNovelComparison() {
   if (novelStarted) return;
   novelStarted = true;
@@ -1138,6 +1275,13 @@ internalPlayButton.addEventListener("click", () => {
     internalPlayButton.textContent = internalPlaying ? "Pause" : "Play";
   }
 });
+nondrivingPlayButton.addEventListener("click", () => {
+  startNondrivingComparison();
+  const shouldPlay = nondrivingInput.paused;
+  nondrivingPlaying = shouldPlay;
+  nondrivingVideos().forEach(video => shouldPlay ? video.play().catch(() => {}) : video.pause());
+  updateNondrivingVideoState();
+});
 motivationPlayButton.addEventListener("click", () => {
   setMotivationPlaying(motivationVideos.some(video => video.paused));
 });
@@ -1148,6 +1292,10 @@ cmpTimeline.addEventListener("input", () => {
 internalTimeline.addEventListener("input", () => {
   startInternalComparison();
   setInternalFrame(Number(internalTimeline.value));
+});
+nondrivingTimeline.addEventListener("input", () => {
+  startNondrivingComparison();
+  setNondrivingFrame(Number(nondrivingTimeline.value));
 });
 novelTimeline.addEventListener("input", () => {
   startNovelComparison();
@@ -1189,6 +1337,13 @@ internalThumbs.addEventListener("click", event => {
   if (button) {
     startInternalComparison();
     setInternalScene(Number(button.dataset.internalScene));
+  }
+});
+nondrivingThumbs.addEventListener("click", event => {
+  const button = event.target.closest("[data-nondriving-scene]");
+  if (button) {
+    startNondrivingComparison();
+    setNondrivingScene(Number(button.dataset.nondrivingScene));
   }
 });
 document.querySelector("#comparison-novel").addEventListener("click", event => {
@@ -1286,6 +1441,7 @@ setScene(0).then(() => {
 });
 initWhenNear("#comparison", startComparison);
 initWhenNear("#comparison-internal", startInternalComparison);
+initWhenNear("#comparison-nondriving", startNondrivingComparison);
 initWhenNear("#comparison-novel", startNovelComparison);
 requestAnimationFrame(tick);
 requestAnimationFrame(syncMotivationVideos);
