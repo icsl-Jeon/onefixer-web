@@ -314,32 +314,6 @@
 
     <section id="additional-results" class="comparison additional-results" aria-label="Additional results">
       <h2>Additional Results</h2>
-      <div id="comparison-nondriving" class="additional-subsection nondriving-comparison" aria-label="Non-driving scene comparison">
-        <h3>Non-driving Scenes</h3>
-        <p class="media-note comparison-note">All methods are fine-tuned on the corresponding training split. OneFixer is initialized from OmniDreams, a driving-scene generation video model.</p>
-        <div class="compare-grid top-grid">
-          <figure>
-            <video id="nondrivingInput" muted loop playsinline preload="auto"></video>
-            <figcaption>3DGS</figcaption>
-          </figure>
-          <figure>
-            <video id="nondrivingGt" muted loop playsinline preload="auto"></video>
-            <figcaption>GT</figcaption>
-          </figure>
-        </div>
-        <div class="compare-grid model-grid" id="nondrivingModelGrid"></div>
-        <section class="controls comparison-controls" aria-label="Non-driving comparison playback controls">
-          <button id="nondrivingPlay" type="button" aria-label="Play or pause non-driving comparison">Pause</button>
-          <div class="scrubber" id="nondrivingScrubber">
-            <span></span>
-            <input id="nondrivingTimeline" type="range" min="0" max="299" value="0" aria-label="Non-driving comparison playback position">
-          </div>
-          <span id="nondrivingFrame">Frame 0 / 299</span>
-          <span id="nondrivingLoaded" class="loaded-label">Loaded 0 / 300</span>
-        </section>
-        <div id="nondrivingThumbs" class="thumb-grid" aria-label="Non-driving comparison selectors"></div>
-      </div>
-
       <h3>Closed Loop Simulation</h3>
       <figure class="closed-loop-viewer">
         <video id="closedLoopVideo" src="media/closed_loop/stop_before_truck.mp4" autoplay muted loop playsinline preload="metadata"></video>
@@ -410,6 +384,33 @@
         <div id="highresLoader" class="media-loader active" aria-live="polite"><span></span>Loading image</div>
       </figure>
       <div id="highresThumbs" class="thumb-grid" aria-label="High-resolution selectors"></div>
+
+      <div id="comparison-nondriving" class="additional-subsection nondriving-comparison" aria-label="Non-driving scene comparison">
+        <h3>Non-driving Scenes</h3>
+        <p class="media-note comparison-note">All methods are fine-tuned on the corresponding training split. OneFixer is initialized from OmniDreams, a driving-scene generation video model.</p>
+        <div class="compare-grid top-grid">
+          <figure>
+            <video id="nondrivingInput" muted loop playsinline preload="auto"></video>
+            <figcaption>3DGS</figcaption>
+          </figure>
+          <figure>
+            <video id="nondrivingGt" muted loop playsinline preload="auto"></video>
+            <figcaption>GT</figcaption>
+          </figure>
+        </div>
+        <div class="compare-grid model-grid" id="nondrivingModelGrid"></div>
+        <section class="controls comparison-controls" aria-label="Non-driving comparison playback controls">
+          <button id="nondrivingPlay" type="button" aria-label="Play or pause non-driving comparison">Pause</button>
+          <div class="scrubber" id="nondrivingScrubber">
+            <span></span>
+            <input id="nondrivingTimeline" type="range" min="0" max="299" value="0" aria-label="Non-driving comparison playback position">
+          </div>
+          <span id="nondrivingFrame">Frame 0 / 299</span>
+          <span id="nondrivingLoaded" class="loaded-label">Loaded 0 / 300</span>
+        </section>
+        <div id="nondrivingThumbs" class="thumb-grid" aria-label="Non-driving comparison selectors"></div>
+      </div>
+
     </section>
 
   </main>

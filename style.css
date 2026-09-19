@@ -194,10 +194,6 @@ h1 span {
   margin-top: 54px;
 }
 
-.additional-subsection {
-  margin-bottom: 64px;
-}
-
 .paper-section h2::after,
 .comparison h2::after {
   content: "";
