@@ -14,7 +14,7 @@ const models = [
   { key: "selfforcing", label: "Self-Forcing", group: "Causal model" },
   { key: "onefixer", label: "OneFixer (Ours)", group: "Causal model", locked: true },
 ];
-const internalModelKeys = new Set(["difix3d", "gsfix3d", "harmonizer", "enhancer3dgs", "omnidreams", "artifixer", "onefixer"]);
+const internalModelKeys = new Set(["difix3d", "gsfix3d", "harmonizer", "enhancer3dgs", "omnidreams", "artifixer", "selfforcing", "onefixer"]);
 const internalModels = models.filter(model => internalModelKeys.has(model.key));
 
 const compare = document.querySelector("#compare");
@@ -246,7 +246,11 @@ function internalPath(kind, index) {
 }
 
 function internalVideoPath(kind) {
-  const version = kind === "artifixer" ? "?v=20260923-speed-fix" : "";
+  const versions = {
+    artifixer: "20260923-speed-fix",
+    selfforcing: "20260923-self-forcing",
+  };
+  const version = versions[kind] ? `?v=${versions[kind]}` : "";
   return `media/internal_videos/${kind}/${internalScenes[internalScene].id}.mp4${version}`;
 }
 
