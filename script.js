@@ -261,9 +261,9 @@ function novelPath(index) {
 
 function novelVideoPath() {
   if (novelGalleryScene > 0) {
-    return `media/novel_videos/${novelSideScenes[novelGalleryScene - 1]}_${novelSideShift}.mp4`;
+    return `media/novel_videos/${novelSideScenes[novelGalleryScene - 1]}_${novelSideShift}.mp4?v=20260923-artifixer-dmd-new`;
   }
-  return `media/novel_videos/${novelScenes[`${novelShift}_${novelYaw}`]}.mp4`;
+  return `media/novel_videos/${novelScenes[`${novelShift}_${novelYaw}`]}.mp4?v=20260923-artifixer-dmd-new`;
 }
 
 function preloadAround(index) {
