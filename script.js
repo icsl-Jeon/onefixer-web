@@ -244,7 +244,8 @@ function internalPath(kind, index) {
 }
 
 function internalVideoPath(kind) {
-  return `media/internal_videos/${kind}/${internalScenes[internalScene].id}.mp4`;
+  const version = kind === "artifixer" ? "?v=20260923-speed-fix" : "";
+  return `media/internal_videos/${kind}/${internalScenes[internalScene].id}.mp4${version}`;
 }
 
 function nondrivingVideoPath(kind) {
@@ -574,6 +575,8 @@ function bindNondrivingVideo(video) {
 }
 
 function setInternalVideoSources() {
+  const leaderTime = internalInput.currentTime || 0;
+  const shouldPlay = internalPlaying;
   const entries = [
     ["input", internalInput],
     ["gt", internalGt],
@@ -587,10 +590,14 @@ function setInternalVideoSources() {
     if (!video.src.endsWith(src)) {
       video.src = src;
       video.load();
+      video.addEventListener("loadedmetadata", () => {
+        video.currentTime = Math.min(leaderTime, video.duration || leaderTime);
+        if (shouldPlay) video.play().catch(() => {});
+      }, { once: true });
     }
     video.playbackRate = 1;
   });
-  if (internalPlaying) internalVideos().forEach(video => video.play().catch(() => {}));
+  if (shouldPlay) internalVideos().forEach(video => video.play().catch(() => {}));
   updateInternalVideoState();
 }
 
@@ -907,6 +914,7 @@ function toggleModel(key) {
 
 function toggleInternalModel(key) {
   if (key === "onefixer") return;
+  internalPlaying = internalInput.paused ? internalPlaying : true;
   if (internalSelectedModels.includes(key)) {
     internalSelectedModels = internalSelectedModels.filter(item => item === "onefixer" || item !== key);
   } else {
