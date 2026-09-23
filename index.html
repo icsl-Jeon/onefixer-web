@@ -65,8 +65,8 @@
       </section>
 
       <figure class="hero-figure">
-        <img src="media/figures/hero.png" alt="OneFixer quality, consistency, and training efficiency summary" loading="lazy" decoding="async">
-        <figcaption><span class="brand-gradient">OneFixer</span> combines strong one-step quality, temporal stability, and efficient training. It occupies a better quality-consistency trade-off than prior 3DGS fixers while reaching lower validation error with a single-stage pipeline and substantially less task-specific compute.
+        <img src="media/figures/hero.png?v=20260923-efficiency" alt="OneFixer quality, consistency, and training efficiency summary" loading="lazy" decoding="async">
+        <figcaption><span class="brand-gradient">OneFixer</span> is a one-step autoregressive video-diffusion fixer for 3DGS driving scenes, fine-tuned from a pretrained causal video generator in a single stage. It achieves the lowest FVD, LPIPS, and DISTS among prior fixers under one-step inference while matching or exceeding the temporal consistency of multi-stage pipelines combining DMD and Self-Forcing.
         </figcaption>
       </figure>
     </section>
@@ -75,17 +75,16 @@
 
   <div class="motivation-copy">
     <p>
-    <strong>One-step causal refinement makes temporal consistency harder.</strong>
-    In autoregressive video diffusion, each refined prediction becomes part of
-    the causal context for subsequent frames. Under one-step denoising, this
-    generated context is reused without iterative correction, making
-    frame-to-frame consistency more sensitive to prediction quality.
-
-    This challenge is visible in prior autoregressive video models such as
+    <strong>One-step causal refinement compounds errors.</strong>
+    In autoregressive video diffusion, each prediction becomes the causal
+    context for the next chunk. Reducing the denoising budget degrades each
+    prediction, and because that prediction is reused as history, errors
+    compound: the context drifts away from the ground-truth histories seen
+    during training. This is visible in
     <a href="https://research.nvidia.com/labs/sil/projects/omnidreams-blog/">OmniDreams</a>:
-    reducing inference from 4 denoising steps to 1 leads to greater
-    frame-to-frame inconsistency and degraded refinement quality.
-
+    moving from four denoising steps to one lowers latency but worsens both
+    video fidelity and temporal consistency, even though every step is
+    anchored by a 3DGS rendering.
     </p>
 
     <p>
