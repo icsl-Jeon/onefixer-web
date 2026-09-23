@@ -14,6 +14,8 @@ const models = [
   { key: "selfforcing", label: "Self-Forcing", group: "Causal model" },
   { key: "onefixer", label: "OneFixer (Ours)", group: "Causal model", locked: true },
 ];
+const internalModelKeys = new Set(["difix3d", "gsfix3d", "harmonizer", "enhancer3dgs", "omnidreams", "artifixer", "onefixer"]);
+const internalModels = models.filter(model => internalModelKeys.has(model.key));
 
 const compare = document.querySelector("#compare");
 const split = document.querySelector("#split");
@@ -764,7 +766,7 @@ function renderModelTiles() {
 
 function renderInternalModelPicker() {
   internalModelPicker.innerHTML = ["Image model", "Bidirectional model", "Causal model"].map(group => {
-    const buttons = models.filter(model => model.group === group).map(model => {
+    const buttons = internalModels.filter(model => model.group === group).map(model => {
       const active = internalSelectedModels.includes(model.key) ? " active" : "";
       const disabled = model.locked ? " disabled" : "";
       const locked = model.locked ? " locked" : "";
@@ -777,7 +779,7 @@ function renderInternalModelPicker() {
 
 function renderInternalModelTiles() {
   internalModelGrid.innerHTML = internalSelectedModels.map(key => {
-    const model = models.find(item => item.key === key);
+    const model = internalModels.find(item => item.key === key);
     return `<figure><video muted loop playsinline preload="auto"></video><figcaption>${model.label}</figcaption></figure>`;
   }).join("");
   internalModelFrameEls = [...internalModelGrid.querySelectorAll("video")];
@@ -914,6 +916,7 @@ function toggleModel(key) {
 
 function toggleInternalModel(key) {
   if (key === "onefixer") return;
+  if (!internalModelKeys.has(key)) return;
   internalPlaying = internalInput.paused ? internalPlaying : true;
   if (internalSelectedModels.includes(key)) {
     internalSelectedModels = internalSelectedModels.filter(item => item === "onefixer" || item !== key);
