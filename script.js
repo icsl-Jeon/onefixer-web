@@ -10,8 +10,8 @@ const models = [
   { key: "enhancer3dgs", label: "3DGS Enhancer", group: "Bidirectional model" },
   { key: "omnidreams", label: "OmniDreams", group: "Causal model" },
   { key: "artifixer", label: "ArtiFixer", group: "Causal model" },
-  { key: "oneforcing", label: "One-Forcing†", group: "Causal model" },
-  { key: "selfforcing", label: "Self-Forcing†", group: "Causal model" },
+  { key: "oneforcing", label: "One-Forcing<sup class=\"model-dagger\">†</sup>", group: "Causal model" },
+  { key: "selfforcing", label: "Self-Forcing<sup class=\"model-dagger\">†</sup>", group: "Causal model" },
   { key: "onefixer", label: "OneFixer (Ours)", group: "Causal model", locked: true },
 ];
 const internalModelKeys = new Set(["difix3d", "gsfix3d", "harmonizer", "enhancer3dgs", "omnidreams", "artifixer", "selfforcing", "onefixer"]);

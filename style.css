@@ -832,6 +832,12 @@ h1 span {
   cursor: default;
 }
 
+.model-dagger {
+  font-size: .58em;
+  line-height: 0;
+  vertical-align: super;
+}
+
 .novel-selectors {
   display: flex;
   flex-direction: column;
