@@ -319,6 +319,12 @@ h1 span {
   margin-bottom: 22px;
 }
 
+.method-footnote {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
 .motivation-controls {
   grid-template-columns: auto minmax(220px, 1fr) auto auto;
   max-width: 820px;
