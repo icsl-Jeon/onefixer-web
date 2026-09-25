@@ -7,7 +7,7 @@ const models = [
   { key: "difix3d", label: "DiFix3D", group: "Image model" },
   { key: "gsfix3d", label: "GSFix3D", group: "Image model" },
   { key: "harmonizer", label: "DiffusionHarmonizer", group: "Image model" },
-  { key: "harmonizer_temporal", label: "Harmonizer (temporal)", group: "Image model" },
+  { key: "harmonizer_temporal", label: "DiffusionHarmonizer (temporal)", group: "Image model" },
   { key: "enhancer3dgs", label: "3DGS Enhancer", group: "Bidirectional video model" },
   { key: "omnidreams", label: "OmniDreams", group: "Causal video model" },
   { key: "artifixer", label: "ArtiFixer", group: "Causal video model" },
