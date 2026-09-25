@@ -7,14 +7,16 @@ const models = [
   { key: "difix3d", label: "DiFix3D", group: "Image model" },
   { key: "gsfix3d", label: "GSFix3D", group: "Image model" },
   { key: "harmonizer", label: "DiffusionHarmonizer", group: "Image model" },
-  { key: "enhancer3dgs", label: "3DGS Enhancer", group: "Bidirectional model" },
-  { key: "omnidreams", label: "OmniDreams", group: "Causal model" },
-  { key: "artifixer", label: "ArtiFixer", group: "Causal model" },
-  { key: "oneforcing", label: "One-Forcing<sup class=\"model-dagger\">†</sup>", group: "Causal model" },
-  { key: "selfforcing", label: "Self-Forcing<sup class=\"model-dagger\">†</sup>", group: "Causal model" },
-  { key: "onefixer", label: "OneFixer (Ours)", group: "Causal model", locked: true },
+  { key: "harmonizer_temporal", label: "Harmonizer (temporal)", group: "Image model" },
+  { key: "enhancer3dgs", label: "3DGS Enhancer", group: "Bidirectional video model" },
+  { key: "omnidreams", label: "OmniDreams", group: "Causal video model" },
+  { key: "artifixer", label: "ArtiFixer", group: "Causal video model" },
+  { key: "oneforcing", label: "One-Forcing<sup class=\"model-dagger\">†</sup>", group: "Causal video model" },
+  { key: "selfforcing", label: "Self-Forcing<sup class=\"model-dagger\">†</sup>", group: "Causal video model" },
+  { key: "onefixer", label: "OneFixer (Ours)", group: "Causal video model", locked: true },
 ];
-const internalModelKeys = new Set(["difix3d", "gsfix3d", "harmonizer", "enhancer3dgs", "omnidreams", "artifixer", "selfforcing", "onefixer"]);
+const modelGroups = ["Image model", "Bidirectional video model", "Causal video model"];
+const internalModelKeys = new Set(["difix3d", "gsfix3d", "harmonizer", "harmonizer_temporal", "enhancer3dgs", "omnidreams", "artifixer", "selfforcing", "onefixer"]);
 const internalModels = models.filter(model => internalModelKeys.has(model.key));
 
 const compare = document.querySelector("#compare");
@@ -249,6 +251,7 @@ function internalVideoPath(kind) {
   const versions = {
     artifixer: "20260923-speed-fix",
     selfforcing: "20260923-self-forcing",
+    harmonizer_temporal: "20260925-harmonizer-temporal",
   };
   const version = versions[kind] ? `?v=${versions[kind]}` : "";
   return `media/internal_videos/${kind}/${internalScenes[internalScene].id}.mp4${version}`;
@@ -748,7 +751,7 @@ function setScene(next) {
 }
 
 function renderModelPicker() {
-  modelPicker.innerHTML = ["Image model", "Bidirectional model", "Causal model"].map(group => {
+  modelPicker.innerHTML = modelGroups.map(group => {
     const buttons = models.filter(model => model.group === group).map(model => {
       const active = selectedModels.includes(model.key) ? " active" : "";
       const disabled = model.locked ? " disabled" : "";
@@ -769,7 +772,7 @@ function renderModelTiles() {
 }
 
 function renderInternalModelPicker() {
-  internalModelPicker.innerHTML = ["Image model", "Bidirectional model", "Causal model"].map(group => {
+  internalModelPicker.innerHTML = modelGroups.map(group => {
     const buttons = internalModels.filter(model => model.group === group).map(model => {
       const active = internalSelectedModels.includes(model.key) ? " active" : "";
       const disabled = model.locked ? " disabled" : "";
