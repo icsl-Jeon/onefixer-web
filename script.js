@@ -66,7 +66,7 @@ const novelPlayButton = document.querySelector("#novelPlay");
 const novelTimeline = document.querySelector("#novelTimeline");
 const novelFrameLabel = document.querySelector("#novelFrame");
 const novelThumbs = document.querySelector("#novelThumbs");
-const closedLoopVideo = document.querySelector("#closedLoopVideo");
+const closedLoopVideos = [...document.querySelectorAll("[data-closed-loop-video]")];
 const closedLoopCaption = document.querySelector("#closedLoopCaption");
 const closedLoopThumbs = document.querySelector("#closedLoopThumbs");
 const closedLoopPlay = document.querySelector("#closedLoopPlay");
@@ -201,10 +201,14 @@ const novelSideScenes = [
   "e1499ea8-ccaf-5c99-9db6-4a5935fae30a_20250912081353_082",
 ];
 const closedLoopScenes = [
-  { key: "stop_before_truck", label: "Correctly stops before the truck" },
-  { key: "avoid_truck", label: "Avoid the truck correctly" },
-  { key: "fast_rollout", label: "2x closed-loop rollout" },
+  { key: "21e6c682-ca8d-4d6c-ad4c-ab6d3271bd5d", label: "Closed-loop scene 1" },
+  { key: "33995285-1001-42d2-8210-c9984ccb57d1", label: "Closed-loop scene 2" },
+  { key: "8b7a921b-898a-4b9a-b7e2-8e389cc851aa", label: "Closed-loop scene 3" },
+  { key: "9159483f-8274-4cb5-9e60-4c98cb272122", label: "Closed-loop scene 4" },
+  { key: "9a716996-b8ba-4dd6-9b37-ed41336d95f8", label: "Closed-loop scene 5" },
+  { key: "ddd1c571-dd3b-4cf4-8789-ce55997880e5", label: "Closed-loop scene 6" },
 ];
+const closedLoopMethods = ["none", "difix", "omnidreams", "self_forcing", "onefixer"];
 const stylizationScenes = [
   "segment-2259324582958830057_3767_030_3787_030_with_camera_labels",
   "segment-1918764220984209654_5680_000_5700_000_with_camera_labels",
@@ -1168,10 +1172,16 @@ function setClosedLoopScene(next) {
   closedLoopScene = next;
   const item = closedLoopScenes[closedLoopScene];
   showLoader(closedLoopLoader, true);
-  closedLoopVideo.src = `media/closed_loop/${item.key}.mp4`;
+  closedLoopVideos.forEach((video, i) => {
+    const src = `media/closed_loop_methods/${item.key}/${closedLoopMethods[i]}.mp4`;
+    if (!video.src.endsWith(src)) {
+      video.src = src;
+      video.load();
+    }
+  });
   closedLoopCaption.textContent = `${item.label}. ${closedLoopNote}`;
   renderClosedLoopThumbs();
-  closedLoopVideo.play().catch(() => {});
+  closedLoopVideos.forEach(video => video.play().catch(() => {}));
 }
 
 function setStylizationScene(next) {
@@ -1478,10 +1488,10 @@ setClosedLoopScene(0);
 setStylizationScene(0);
 setMulticamScene(0);
 setHighresScene(0);
-bindMediaControls(closedLoopVideo, closedLoopPlay, closedLoopTimeline, closedLoopTime);
+bindMediaGroupControls(closedLoopVideos, closedLoopPlay, closedLoopTimeline, closedLoopTime);
 bindMediaGroupControls(stylizationVideos, stylizationPlay, stylizationTimeline, stylizationTime);
 bindMediaControls(multicamVideo, multicamPlay, multicamTimeline, multicamTime);
-bindLoadingIndicator(closedLoopVideo, closedLoopLoader);
+bindLoadingIndicator(closedLoopVideos[0], closedLoopLoader);
 bindLoadingIndicator(multicamVideo, multicamLoader);
 bindLoadingIndicator(highresImage, highresLoader);
 motivationVideos.forEach(video => {

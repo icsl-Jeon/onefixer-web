@@ -313,7 +313,28 @@
       <h2>Additional Results</h2>
       <h3>Closed Loop Simulation</h3>
       <figure class="closed-loop-viewer">
-        <video id="closedLoopVideo" src="media/closed_loop/stop_before_truck.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <div id="closedLoopGrid" class="closed-loop-grid">
+          <figure>
+            <video data-closed-loop-video="none" autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption>3DGS</figcaption>
+          </figure>
+          <figure>
+            <video data-closed-loop-video="difix" autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption>DiFix3D</figcaption>
+          </figure>
+          <figure>
+            <video data-closed-loop-video="omnidreams" autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption>OmniDreams</figcaption>
+          </figure>
+          <figure>
+            <video data-closed-loop-video="self_forcing" autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption>Self-Forcing</figcaption>
+          </figure>
+          <figure>
+            <video data-closed-loop-video="onefixer" autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption>OneFixer (Ours)</figcaption>
+          </figure>
+        </div>
         <div id="closedLoopLoader" class="media-loader active" aria-live="polite"><span></span>Loading media</div>
       </figure>
       <section class="controls media-controls" aria-label="Closed loop playback controls">
@@ -324,7 +345,7 @@
         </div>
         <span id="closedLoopTime">0:00 / 0:00</span>
       </section>
-      <p id="closedLoopCaption" class="media-note">Correctly stops before the truck. The black dashed line indicates the logged trajectory; outside this path, no 3DGS reconstruction is available.</p>
+      <p id="closedLoopCaption" class="media-note">The black dashed line indicates the logged trajectory; outside this path, no 3DGS reconstruction is available.</p>
       <div id="closedLoopThumbs" class="thumb-grid" aria-label="Closed loop simulation selectors"></div>
 
       <h3>Stylization</h3>
