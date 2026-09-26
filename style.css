@@ -663,6 +663,7 @@ h1 span {
   width: min(100%, 1040px);
   height: auto;
   margin: 0 auto;
+  background: transparent;
 }
 
 .closed-loop-grid {
@@ -971,6 +972,13 @@ figure video {
   height: 100%;
   object-fit: fill;
   display: block;
+}
+
+.closed-loop-viewer {
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+  aspect-ratio: auto;
 }
 
 figcaption {
